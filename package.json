@@ -1,0 +1,32 @@
+{
+  "name": "pingg",
+  "version": "0.0.1",
+  "description": "Ping latency graphing CLI",
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/Thann/pingg.git"
+  },
+  "bin": {
+    "pingg": "index.js"
+  },
+  "licenses": [
+    {
+      "type": "UNLICENSE",
+      "url": "https://gitlab.com/Thann/pingg/blob/master/LICENSE"
+    }
+  ],
+  "scripts": {
+    "start": "node index",
+    "test": "mocha",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "bcfg": "^0.1.6",
+    "blessed": "^0.1.81",
+    "blessed-contrib": "^4.8.12"
+  },
+  "devDependencies": {
+    "bmocha": "^2.1.0",
+    "eslint": "^5.16.0"
+  }
+}
