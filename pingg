@@ -24,7 +24,7 @@ config.inject({
 config.load({ argv: true });
 config.argv = config.argv.length && config.argv || ['8.8.8.8', '1.1.1.1'];
 const colors = config.array('colors');
-const datas = {};
+const data = [];
 let cIndex = 0;
 
 // Setup display
@@ -46,7 +46,7 @@ screen.render();
 // Ping each host and display results
 for (const host of config.argv) {
 	const ping = spawn('ping', [host]);
-	const data = {
+	const hostData = {
 		title: host,
 		x:[],
 		y:[],
@@ -54,16 +54,20 @@ for (const host of config.argv) {
 			line: colors[cIndex++ % colors.length],
 		},
 	};
-	datas[host] = data;
+	data.push(hostData);
 
 	ping.stdout.on('data', function(d) {
 		// console.log("DATA!!!", d.toString())
-		const p = (/time=([\d\.]+) ms/g).exec(d.toString());
-		if (p) {
-			data.x.push((new Date()).toLocaleTimeString());
-			data.y.push(parseFloat(p[1]));
-			line.setData(Object.values(datas));
+		const latency = (/time=([\d\.]+) ms/g).exec(d.toString());
+		if (latency) {
+			hostData.x.push((new Date()).toLocaleTimeString());
+			hostData.y.push(parseFloat(latency[1]));
+			line.setData(data);
 			screen.render();
 		}
+	});
+
+	ping.stdout.on('end', function() {
+		hostData.title = '!! ' + host
 	});
 }
