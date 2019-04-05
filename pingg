@@ -72,4 +72,9 @@ for (const host of config.argv) {
 	ping.stdout.on('end', function() {
 		hostData.title = '!! ' + host;
 	});
+
+	// Ctrl-z will stop without exiting
+	screen.key(['C-z'], function() {
+		ping.kill();
+	});
 }
