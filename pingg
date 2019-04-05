@@ -2,7 +2,7 @@
 'use strict';
 
 // Ping graphing tool:
-// pingg -h google.com,yahoo.com
+// pingg google.com yahoo.com
 
 const Config = require('bcfg');
 const blessed = require('blessed');
@@ -12,18 +12,17 @@ const spawn = require('child_process').spawn;
 // Parse arguments
 const config = new Config('pingg', {
 	alias: {
-		'h': 'hosts',
 		'c': 'colors',
 		// 'f': 'flood',
 	},
 });
 
 config.inject({
-	'hosts': ['8.8.8.8', '1.1.1.1'],
-	'colors': ['green', 'blue', 'red', 'yellow'],
+	'colors': ['green', 'blue', 'red', 'white', 'yellow'],
 });
 
-config.load({argv: true});
+config.load({ argv: true });
+config.argv = config.argv.length && config.argv || ['8.8.8.8', '1.1.1.1'];
 const colors = config.array('colors');
 const datas = {};
 let cIndex = 0;
@@ -45,7 +44,7 @@ screen.key(['escape', 'q', 'C-c'], function(ch, key) {
 screen.render();
 
 // Ping each host and display results
-for (const host of config.array('hosts')) {
+for (const host of config.argv) {
 	const ping = spawn('ping', [host]);
 	const data = {
 		title: host,
