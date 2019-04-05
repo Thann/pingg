@@ -31,10 +31,10 @@ let cIndex = 0;
 // Setup display
 const screen = blessed.screen();
 const line = contrib.line({
-	xLabelPadding: 13,
+	xLabelPadding: 3,
 	xPadding: 5,
-	yLabelPadding: 25,
-	yPadding: 15,
+	yLabelPadding: 1,
+	yPadding: 1,
 	showLegend: true,
 	label: 'Network latency',
 });
