@@ -6,9 +6,7 @@
     "type": "git",
     "url": "https://gitlab.com/Thann/pingg.git"
   },
-  "bin": {
-    "pingg": "index.js"
-  },
+  "bin": "pingg",
   "licenses": [
     {
       "type": "UNLICENSE",
@@ -18,7 +16,7 @@
   "scripts": {
     "start": "node index",
     "test": "mocha",
-    "lint": "eslint ."
+    "lint": "eslint pingg"
   },
   "dependencies": {
     "bcfg": "^0.1.6",
@@ -28,5 +26,9 @@
   "devDependencies": {
     "bmocha": "^2.1.0",
     "eslint": "^5.16.0"
-  }
+  },
+  "keywords": [
+    "monitor",
+    "blessed"
+  ]
 }
