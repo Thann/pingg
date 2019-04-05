@@ -13,7 +13,8 @@ const spawn = require('child_process').spawn;
 const config = new Config('pingg', {
 	alias: {
 		'c': 'colors',
-		// 'f': 'flood',
+		'f': 'flood',
+		'A': 'flood',
 	},
 });
 
@@ -45,7 +46,8 @@ screen.render();
 
 // Ping each host and display results
 for (const host of config.argv) {
-	const ping = spawn('ping', [host]);
+	const ping = spawn('ping', [host].concat(
+		config.bool('flood') && ['-A'] || []));
 	const hostData = {
 		title: host,
 		x:[],
@@ -68,6 +70,6 @@ for (const host of config.argv) {
 	});
 
 	ping.stdout.on('end', function() {
-		hostData.title = '!! ' + host
+		hostData.title = '!! ' + host;
 	});
 }
