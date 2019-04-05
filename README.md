@@ -5,4 +5,4 @@ Ping latency graphing CLI
 
 `pingg google.com yahoo.com`
 
-![screenshot](https://github.com/Thann/pingg/blob/master/example.png)
+![screenshot](https://gitlab.com/Thann/pingg/raw/master/example.png)
