@@ -7,7 +7,7 @@
 const Config = require('bcfg');
 const blessed = require('blessed');
 const contrib = require('blessed-contrib');
-const spawn = require('child_process').spawn;
+const cp = require('child_process');
 
 // Parse arguments
 const config = new Config('pingg', {
@@ -15,15 +15,25 @@ const config = new Config('pingg', {
 		'c': 'colors',
 		'f': 'flood',
 		'A': 'flood',
+		't': 'trace',
 	},
 });
 
 config.inject({
-	'colors': ['green', 'blue', 'red', 'white', 'yellow'],
+	'colors': ['green', 'blue', 'red', 'white', 'yellow', 'magenta'],
 });
 
 config.load({ argv: true });
 config.argv = config.argv.length && config.argv || ['8.8.8.8', '1.1.1.1'];
+if (config.bool('trace')) {
+	config.argv = cp.execSync('traceroute '+config.argv[0])
+		.toString().split('\n').reduce((arr, s) => {
+			const e = / \(([\w.]+)\) /.exec(s);
+			e && e[1] && arr.push(e[1]);
+			return arr;
+		}, []);
+}
+
 const colors = config.array('colors');
 const data = [];
 let cIndex = 0;
@@ -46,7 +56,7 @@ screen.render();
 
 // Ping each host and display results
 for (const host of config.argv) {
-	const ping = spawn('ping', [host].concat(
+	const ping = cp.spawn('ping', [host].concat(
 		config.bool('flood') && ['-A'] || []));
 	const hostData = {
 		title: host,
