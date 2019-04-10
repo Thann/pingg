@@ -60,7 +60,7 @@ screen.render();
 // Ping each host and display results
 for (const host of config.argv) {
 	const ping = cp.spawn('ping', [host].concat(
-		config.int ('interval') && ['-i', config.int('interval')]  ||
+		config.get ('interval') && ['-i', config.get('interval')]  ||
 		config.bool('flood') && ['-A'] ||
 		[]));
 	const hostData = {

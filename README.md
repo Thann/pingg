@@ -8,11 +8,11 @@ Ping latency graphing CLI
 ![screenshot](https://gitlab.com/Thann/pingg/raw/master/example.png)
 
 ## options
-`--trace` `-t`  performs traceroute and graphs pings to every target
+`--trace` `-t`  executes traceroute and graphs pings to every target
 
 `--interval` `-i`  time between each ping
 
 `--flood`  `-f` `-A`  pings as fast as possible
 
-`--color` `-c`  list of colors to use like `green,blue,red,white,yellow,magenta`
+`--color` `-c`  list of colors to use. Default: `green,blue,red,white,yellow,magenta`
 
