@@ -14,5 +14,5 @@ Ping latency graphing CLI
 
 `--flood`  `-f` `-A`  pings as fast as possible
 
-`--color` `-c`  list of colors to use. Default: `green,blue,red,white,yellow,magenta`
+`--color` `-c`  list of colors to use. default: `green,blue,red,white,yellow,magenta`
 
