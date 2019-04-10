@@ -4,6 +4,7 @@
 // Ping graphing tool:
 // pingg google.com yahoo.com
 
+const TS = require('./ts').$ts;
 const Config = require('bcfg');
 const blessed = require('blessed');
 const contrib = require('blessed-contrib');
@@ -22,7 +23,7 @@ const config = new Config('pingg', {
 });
 
 config.inject({
-	'prune': 10000,
+	'prune': 1000,
 	'colors': ['green', 'blue', 'red', 'white', 'yellow', 'magenta'],
 });
 
@@ -71,19 +72,23 @@ for (const host of config.argv) {
 		title: host,
 		x:[],
 		y:[],
+		ts:[],
 		style: {
 			line: colors[cIndex++ % colors.length],
 		},
 	};
 	data.push(hostData);
 
+	let pingIndex = 0;
 	ping.stdout.on('data', function(d) {
-		// console.log("DATA!!!", d.toString())
+		pingIndex++;
 		const latency = (/time=([\d\.]+) ms/g).exec(d.toString());
 		if (latency) {
-			hostData.x.push((new Date()).toLocaleTimeString());
+			const d = new Date();
+			hostData.x.push(d.toLocaleTimeString());
 			hostData.y.push(parseFloat(latency[1]));
-			if (config.get('prune') && data[0].x.length >= config.int('prune'))
+			hostData.ts.push(Math.floor(d / 1000)); // X but how the ts lib likes it
+			if (config.has('prune') && !(pingIndex % config.int('prune')))
 				prune();
 			line.setData(data);
 			screen.render();
@@ -102,4 +107,21 @@ for (const host of config.argv) {
 
 // Prune - Remove static from the data to make it smaller
 function prune() {
+	for (const hostData of data) {
+		const after =	TS.numeric(
+			 hostData.ts.map((x,i) => {
+				return [x, hostData.y[i]];
+			})
+		).simplify();
+		if (after.data.length < hostData.x.length) {
+			hostData.x = [];
+			hostData.ts = [];
+			hostData.y = after.values();
+			for (const [ts ,v] of after.data) {
+				hostData.ts.push(ts);
+				hostData.x.push((new Date(ts * 1000)).toLocaleTimeString());
+			}
+		}
+	}
 };
+
