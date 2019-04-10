@@ -16,6 +16,7 @@ const config = new Config('pingg', {
 		'f': 'flood',
 		'A': 'flood',
 		't': 'trace',
+		'i': 'interval',
 	},
 });
 
@@ -25,8 +26,10 @@ config.inject({
 
 config.load({ argv: true });
 config.argv = config.argv.length && config.argv || ['8.8.8.8', '1.1.1.1'];
-if (config.bool('trace')) {
-	config.argv = cp.execSync('traceroute '+config.argv[0])
+if (config.get('trace')) {
+	if (config.str('trace') !== 'true')
+		config.argv = [config.get('trace')];
+	config.argv = cp.execSync('traceroute '+ config.argv[0])
 		.toString().split('\n').reduce((arr, s) => {
 			const e = / \(([\w.]+)\) /.exec(s);
 			e && e[1] && arr.push(e[1]);
@@ -57,7 +60,9 @@ screen.render();
 // Ping each host and display results
 for (const host of config.argv) {
 	const ping = cp.spawn('ping', [host].concat(
-		config.bool('flood') && ['-A'] || []));
+		config.int ('interval') && ['-i', config.int('interval')]  ||
+		config.bool('flood') && ['-A'] ||
+		[]));
 	const hostData = {
 		title: host,
 		x:[],
