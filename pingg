@@ -16,11 +16,13 @@ const config = new Config('pingg', {
 		'f': 'flood',
 		'A': 'flood',
 		't': 'trace',
+		'p': 'prune',
 		'i': 'interval',
 	},
 });
 
 config.inject({
+	'prune': 10000,
 	'colors': ['green', 'blue', 'red', 'white', 'yellow', 'magenta'],
 });
 
@@ -52,9 +54,11 @@ const line = contrib.line({
 	label: 'Network latency',
 });
 screen.append(line);
+// Keybinds to exit
 screen.key(['escape', 'q', 'C-c'], function(ch, key) {
 	return process.exit(0);
 });
+screen.key(['C-p'], prune);
 screen.render();
 
 // Ping each host and display results
@@ -79,6 +83,8 @@ for (const host of config.argv) {
 		if (latency) {
 			hostData.x.push((new Date()).toLocaleTimeString());
 			hostData.y.push(parseFloat(latency[1]));
+			if (config.get('prune') && data[0].x.length >= config.int('prune'))
+				prune();
 			line.setData(data);
 			screen.render();
 		}
@@ -93,3 +99,7 @@ for (const host of config.argv) {
 		ping.kill();
 	});
 }
+
+// Prune - Remove static from the data to make it smaller
+function prune() {
+};
