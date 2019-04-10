@@ -10,9 +10,9 @@ Ping latency graphing CLI
 ## options
 `--trace` `-t`  performs traceroute and graphs pings to every target
 
-`--inteval` `-i`  time between each ping
+`--interval` `-i`  time between each ping
 
-`--flood`  `-f` `-A`  ping as fast as possible
+`--flood`  `-f` `-A`  pings as fast as possible
 
-`--color` `-c`  list of colors to use
+`--color` `-c`  list of colors to use like `green,blue,red,white,yellow,magenta`
 
