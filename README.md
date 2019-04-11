@@ -18,3 +18,5 @@ Ping latency graphing CLI
 
 `--prune 1000` `-p`  set number of pings between each graph cleanup
 
+`--gateway` `g`  also pings your default gateway (router)
+

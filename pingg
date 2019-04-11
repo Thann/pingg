@@ -89,7 +89,7 @@ for (const host of config.argv) {
 			hostData.x.push(d.toLocaleTimeString());
 			hostData.y.push(parseFloat(latency[1]));
 			hostData.ts.push(Math.floor(d / 1000)); // X but for the ts lib
-			if (config.has('prune') && !(pingIndex++ % config.int('prune')))
+			if (config.int('prune') && !(pingIndex++ % config.int('prune')))
 				prune();
 			line.setData(data);
 			screen.render();
