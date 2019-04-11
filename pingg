@@ -56,9 +56,7 @@ const line = contrib.line({
 });
 screen.append(line);
 // Keybinds to exit
-screen.key(['escape', 'q', 'C-c'], function(ch, key) {
-	return process.exit(0);
-});
+screen.key(['escape', 'q', 'C-c'], _ => process.exit(0));
 screen.key(['C-p'], prune);
 screen.render();
 
@@ -87,7 +85,7 @@ for (const host of config.argv) {
 			const d = new Date();
 			hostData.x.push(d.toLocaleTimeString());
 			hostData.y.push(parseFloat(latency[1]));
-			hostData.ts.push(Math.floor(d / 1000)); // X but how the ts lib likes it
+			hostData.ts.push(Math.floor(d / 1000)); // X but for the ts lib
 			if (config.has('prune') && !(pingIndex % config.int('prune')))
 				prune();
 			line.setData(data);
@@ -108,20 +106,21 @@ for (const host of config.argv) {
 // Prune - Remove static from the data to make it smaller
 function prune() {
 	for (const hostData of data) {
+		if (!hostData.ts.length) continue;
 		const after =	TS.numeric(
-			 hostData.ts.map((x,i) => {
+			hostData.ts.map((x, i) => {
 				return [x, hostData.y[i]];
 			})
 		).simplify();
 		if (after.data.length < hostData.x.length) {
 			hostData.x = [];
+			hostData.y = [];
 			hostData.ts = [];
-			hostData.y = after.values();
 			for (const [ts ,v] of after.data) {
+				hostData.y.push(v);
 				hostData.ts.push(ts);
 				hostData.x.push((new Date(ts * 1000)).toLocaleTimeString());
 			}
 		}
 	}
 };
-
