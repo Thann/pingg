@@ -16,7 +16,6 @@ Ping latency graphing CLI
 
 `--color` `-c`  list of colors to use. default: `green,blue,red,white,yellow,magenta`
 
-`--prune 1000` `-p`  set number of pings between each graph cleanup
+`--prune 1000` `-p`  set number of pings between each graph cleanup. disable with `0`
 
-`--gateway` `g`  also pings your default gateway (router)
-
+`--gateway` `g`  also pings the default gateway (router)
