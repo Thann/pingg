@@ -64,8 +64,7 @@ screen.render();
 for (const host of config.argv) {
 	const ping = cp.spawn('ping', [host].concat(
 		config.get ('interval') && ['-i', config.get('interval')]  ||
-		config.bool('flood') && ['-A'] ||
-		[]));
+		config.bool('flood') && ['-A'] || []));
 	const hostData = {
 		title: host,
 		x:[],
@@ -79,14 +78,13 @@ for (const host of config.argv) {
 
 	let pingIndex = 0;
 	ping.stdout.on('data', function(d) {
-		pingIndex++;
 		const latency = (/time=([\d\.]+) ms/g).exec(d.toString());
 		if (latency) {
 			const d = new Date();
 			hostData.x.push(d.toLocaleTimeString());
 			hostData.y.push(parseFloat(latency[1]));
 			hostData.ts.push(Math.floor(d / 1000)); // X but for the ts lib
-			if (config.has('prune') && !(pingIndex % config.int('prune')))
+			if (config.has('prune') && !(pingIndex++ % config.int('prune')))
 				prune();
 			line.setData(data);
 			screen.render();
@@ -98,16 +96,14 @@ for (const host of config.argv) {
 	});
 
 	// Ctrl-z will stop without exiting
-	screen.key(['C-z'], function() {
-		ping.kill();
-	});
+	screen.key(['C-z'], _ => ping.kill());
 }
 
 // Prune - Remove static from the data to make it smaller
 function prune() {
 	for (const hostData of data) {
 		if (!hostData.ts.length) continue;
-		const after =	TS.numeric(
+		const after = TS.numeric(
 			hostData.ts.map((x, i) => {
 				return [x, hostData.y[i]];
 			})
