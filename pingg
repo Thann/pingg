@@ -8,8 +8,11 @@ const TS = require('./ts').$ts;
 const Config = require('bcfg');
 const blessed = require('blessed');
 const contrib = require('blessed-contrib');
-const netroute = require('netroute');
 const cp = require('child_process');
+let netroute;
+try {
+  netroute = require('netroute');
+} catch(e) {}
 
 // Parse arguments
 const config = new Config('pingg', {
@@ -23,17 +26,20 @@ const config = new Config('pingg', {
 		'i': 'interval',
 	},
 });
-
 config.inject({
 	'prune': 1000,
 	'colors': ['green', 'blue', 'red', 'white', 'yellow', 'magenta'],
 });
-
 config.load({ argv: true });
+
+let gateway;
+try {
+	gateway = netroute.getGateway();
+} catch(e) {}
 if (!config.argv.length)
-	config.argv = ['8.8.8.8', '1.1.1.1', netroute.getGateway()];
-else if (config.bool('gateway'))
-	config.argv.push(netroute.getGateway());
+	config.argv = ['8.8.8.8', '1.1.1.1', gateway].filter(Boolean);
+else if (config.bool('gateway') && gateway)
+	config.argv.push(gateway);
 if (config.get('trace')) {
 	if (config.str('trace') !== 'true')
 		config.argv = [config.get('trace')];

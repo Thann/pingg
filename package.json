@@ -1,6 +1,6 @@
 {
   "name": "pingg",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "description": "Ping latency graphing CLI",
   "repository": {
     "type": "git",
@@ -21,7 +21,9 @@
   "dependencies": {
     "bcfg": "^0.1.6",
     "blessed": "^0.1.81",
-    "blessed-contrib": "^4.8.12",
+    "blessed-contrib": "^4.8.12"
+  },
+  "optionalDependencies": {
     "netroute": "github:indutny/node-netroute#cc271e379afc4faf48b4d4295d68dd38e5d6b224"
   },
   "devDependencies": {
