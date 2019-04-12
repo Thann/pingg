@@ -17,6 +17,7 @@ try {
 // Parse arguments
 const config = new Config('pingg', {
 	alias: {
+		'm': 'max',
 		'c': 'colors',
 		'f': 'flood',
 		'A': 'flood',
@@ -95,7 +96,14 @@ for (const host of config.argv) {
 			hostData.x.push(d.toLocaleTimeString());
 			hostData.y.push(parseFloat(latency[1]));
 			hostData.ts.push(Math.floor(d / 1000)); // X but for the ts lib
-			if (config.int('prune') && !(pingIndex++ % config.int('prune')))
+			if (config.get('max')) {
+					if (hostData.x.length >= config.int('max')) {
+						hostData.x.splice(0, hostData.x.length - config.int('max'))
+						hostData.y.splice(0, hostData.y.length - config.int('max'))
+						hostData.ts.splice(0, hostData.ts.length - config.int('max'))
+					}
+			}
+			else if (config.int('prune') && !(pingIndex++ % config.int('prune')))
 				prune();
 			line.setData(data);
 			screen.render();
