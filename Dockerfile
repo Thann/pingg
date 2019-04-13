@@ -2,7 +2,8 @@ FROM node:alpine AS base
 
 ENV LANG en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
-ENTRYPOINT ["/app/pingg"]
+ENV PATH "$PATH:/app"
+ENTRYPOINT ["pingg"]
 
 # Create app directory
 RUN mkdir /app
