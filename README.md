@@ -5,6 +5,8 @@ Ping latency graphing CLI
 
 `pingg google.com yahoo.com`
 
+OR `docker run --rm -it thann/pingg`
+
 ![screenshot](https://gitlab.com/Thann/pingg/raw/master/example2.png)
 
 ## options

@@ -20,5 +20,5 @@ build:
     - docker build -t "$CI_REGISTRY_IMAGE$BRANCH:latest" .
     - docker push "$CI_REGISTRY_IMAGE$BRANCH:latest"
     # Publish to dockerhub
-    - if [ "$CI_COMMIT_REF_NAME" != "master" ]; then docker login -u "$DOCKERHUB_LOGIN" -p "$DOCKERHUB_PASSWORD"; docker tag "$CI_REGISTRY_IMAGE$BRANCH:latest" thann/pingg; docker push thann/pingg; fi
+    - if [ "$CI_COMMIT_REF_NAME" == "master" ]; then docker login -u "$DOCKERHUB_LOGIN" -p "$DOCKERHUB_PASSWORD"; docker tag "$CI_REGISTRY_IMAGE$BRANCH:latest" thann/pingg; docker push thann/pingg; fi
 
