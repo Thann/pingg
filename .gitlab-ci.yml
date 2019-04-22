@@ -1,6 +1,7 @@
 image: docker:latest
 stages:
   - build
+  - release
 
 services:
   - docker:dind
@@ -9,7 +10,7 @@ variables:
   DOCKER_DRIVER: overlay2
 
 before_script:
-    - if [ "$CI_COMMIT_REF_NAME" != "master" ]; then BRANCH="/$CI_COMMIT_REF_NAME"; fi
+    - if [ "$CI_COMMIT_REF_NAME" != "master" ] && [ -z "$CI_COMMIT_TAG" ]; then BRANCH="/$CI_COMMIT_REF_NAME"; fi
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
 
 build:
@@ -20,5 +21,33 @@ build:
     - docker build -t "$CI_REGISTRY_IMAGE$BRANCH:latest" .
     - docker push "$CI_REGISTRY_IMAGE$BRANCH:latest"
     # Publish to dockerhub
-    - if [ "$CI_COMMIT_REF_NAME" == "master" ]; then docker login -u "$DOCKERHUB_LOGIN" -p "$DOCKERHUB_PASSWORD"; docker tag "$CI_REGISTRY_IMAGE$BRANCH:latest" thann/pingg; docker push thann/pingg; fi
+    - >
+        if [ "$CI_COMMIT_REF_NAME" == "master" ]; then
+        docker login -u "$DOCKERHUB_LOGIN" -p "$DOCKERHUB_PASSWORD";
+        docker tag "$CI_REGISTRY_IMAGE$BRANCH:latest" thann/pingg;
+        docker push thann/pingg; fi
+
+release:
+  stage: release
+  only: [tags]
+  tags:
+    - docker
+  script:
+    - docker pull "$CI_REGISTRY_IMAGE$BRANCH:latest"
+    - docker tag "$CI_REGISTRY_IMAGE$BRANCH:latest" "$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG"
+    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG"
+    - docker run --name=release --entrypoint sh "$CI_REGISTRY_IMAGE$BRANCH:latest" -c "npm install pkg; /app/node_modules/.bin/pkg . -t node10-macos,node10-win"
+    - mkdir public
+    # build release binaries
+    - docker cp release:/app/pingg-macos "public/ping-${CI_COMMIT_TAG}-macos"
+    - docker cp release:/app/pingg-win.exe "public/ping-${CI_COMMIT_TAG}-win.exe"
+    - apk add --no-cache curl
+    - >
+        curl --header 'Content-Type: application/json' --header "PRIVATE-TOKEN: ${RELEASE_KEY}"
+        --data "{ \"name\": \"Version ${CI_COMMIT_TAG}\", \"tag_name\": \"${CI_COMMIT_TAG}\", \"description\": \"Automated release\", \"assets\": { \"links\": [{ \"name\": \"MacOS download\", \"url\": \"${CI_JOB_URL}/artifacts/raw/public/ping-${CI_COMMIT_TAG}-macos?inline=false\" },{ \"name\": \"Windows download\", \"url\": \"${CI_JOB_URL}/artifacts/raw/public/ping-${CI_COMMIT_TAG}-win.exe?inline=false\" }] } }"
+        --request POST "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases"
+  artifacts:
+    paths:
+      - public
+    expire_in: 99 yrs
 
