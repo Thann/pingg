@@ -20,9 +20,14 @@ build:
   script:
     - docker build -t "$CI_REGISTRY_IMAGE$BRANCH:latest" .
     - docker push "$CI_REGISTRY_IMAGE$BRANCH:latest"
+    # Publish tag
+    - >
+        if [ ! -z "$CI_COMMIT_TAG" ]; then
+        docker tag "$CI_REGISTRY_IMAGE$BRANCH:latest" "$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG";
+        docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG";
     # Publish to dockerhub
     - >
-        if [ "$CI_COMMIT_REF_NAME" == "master" ] || [ ! -z "$CI_COMMIT_TAG" ]; then
+        if [ -z "$BRANCH" ] && [ ! -z "$DOCKERHUB_PASSWORD" ]; then
         docker login -u "$DOCKERHUB_LOGIN" -p "$DOCKERHUB_PASSWORD";
         docker tag "$CI_REGISTRY_IMAGE$BRANCH:latest" thann/pingg;
         docker push thann/pingg; fi
@@ -33,18 +38,17 @@ release:
   tags:
     - docker
   script:
-    - docker pull "$CI_REGISTRY_IMAGE$BRANCH:latest"
-    - docker tag "$CI_REGISTRY_IMAGE$BRANCH:latest" "$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG"
-    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG"
-    - docker run --name=release --entrypoint sh "$CI_REGISTRY_IMAGE$BRANCH:latest" -c "npm install pkg; /app/node_modules/.bin/pkg . -t node10-macos,node10-win"
+    - docker pull "$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG"
+    - docker run --name=release --entrypoint sh "$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG" -c "npm install pkg; /app/node_modules/.bin/pkg . -t node10-macos,node10-win"
     - mkdir public
-    # build release binaries
+    # Build release binaries
     - docker cp release:/app/pingg-macos "public/ping-${CI_COMMIT_TAG}-macos"
     - docker cp release:/app/pingg-win.exe "public/ping-${CI_COMMIT_TAG}-win.exe"
     - apk add --no-cache curl
+    # Publish release
     - >
         curl --header 'Content-Type: application/json' --header "PRIVATE-TOKEN: ${RELEASE_KEY}"
-        --data "{ \"name\": \"Version ${CI_COMMIT_TAG}\", \"tag_name\": \"${CI_COMMIT_TAG}\", \"description\": \"Automated release\", \"assets\": { \"links\": [{ \"name\": \"MacOS download\", \"url\": \"${CI_JOB_URL}/artifacts/raw/public/ping-${CI_COMMIT_TAG}-macos?inline=false\" },{ \"name\": \"Windows download\", \"url\": \"${CI_JOB_URL}/artifacts/raw/public/ping-${CI_COMMIT_TAG}-win.exe?inline=false\" }] } }"
+        --data "{ \"name\": \"Version ${CI_COMMIT_TAG}\", \"tag_name\": \"${CI_COMMIT_TAG}\", \"description\": \"${CI_COMMIT_MESSAGE}\", \"assets\": { \"links\": [{ \"name\": \"MacOS download\", \"url\": \"${CI_JOB_URL}/artifacts/raw/public/ping-${CI_COMMIT_TAG}-macos?inline=false\" },{ \"name\": \"Windows download\", \"url\": \"${CI_JOB_URL}/artifacts/raw/public/ping-${CI_COMMIT_TAG}-win.exe?inline=false\" }] } }"
         --request POST "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases"
   artifacts:
     paths:
