@@ -24,7 +24,7 @@ build:
     - >
         if [ ! -z "$CI_COMMIT_TAG" ]; then
         docker tag "$CI_REGISTRY_IMAGE$BRANCH:latest" "$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG";
-        docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG";
+        docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG"; fi
     # Publish to dockerhub
     - >
         if [ -z "$BRANCH" ] && [ ! -z "$DOCKERHUB_PASSWORD" ]; then
