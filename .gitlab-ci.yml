@@ -48,7 +48,7 @@ release:
     # Publish release
     - |
       curl --fail --output "/dev/null" --silent --show-error --write-out "HTTP response: ${http_code}\n\n" \
-        --data "{\"tag_name\": \"${CI_COMMIT_TAG}\", \"name\": \"${CI_PROJECT_NAME} - ${CI_COMMIT_TAG}\", \"description\": \"${CI_COMMIT_MESSAGE:-Automated release}\", \"assets\": { \"links\": [{ \"name\": \"MacOS download\", \"url\": \"${CI_JOB_URL}/artifacts/raw/public/pingg-${CI_COMMIT_TAG}-macos?inline=false\" },{ \"name\": \"Windows download\", \"url\": \"${CI_JOB_URL}/artifacts/raw/public/pingg-${CI_COMMIT_TAG}-win.exe?inline=false\" }] } }" \
+        --data "{\"tag_name\": \"${CI_COMMIT_TAG}\", \"name\": \"${CI_PROJECT_NAME} - ${CI_COMMIT_TAG}\", \"description\": \"${CI_COMMIT_TAG_MESSAGE:-Automated release}\", \"assets\": { \"links\": [{ \"name\": \"MacOS download\", \"url\": \"${CI_JOB_URL}/artifacts/raw/public/pingg-${CI_COMMIT_TAG}-macos?inline=false\" },{ \"name\": \"Windows download\", \"url\": \"${CI_JOB_URL}/artifacts/raw/public/pingg-${CI_COMMIT_TAG}-win.exe?inline=false\" }] } }" \
         --header "Content-Type: application/json" \
         --header "Private-Token: ${RELEASE_KEY}" \
         --request POST \

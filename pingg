@@ -110,9 +110,9 @@ for (const host of config.argv) {
 			const [hostname, port] = host.split(':');
 			sock.connect(port, hostname, () => {
 				skip = false;
+				sock.destroy();
 				const end = process.hrtime(start);
 				pushData(hostData, (end[0] * 1e9 + end[1]) / 1e6);
-				sock.destroy();
 			});
 			sock.on('error', (e) => {
 				sock.destroy();
@@ -122,8 +122,9 @@ for (const host of config.argv) {
 			sock.setTimeout(config.get('interval', 1) * 5000, (e) => {
 				skip = false;
 				sock.destroy();
-				// pushData(hostData, config.get('interval', 1) * 5000);
+				pushData(hostData, config.get('interval', 1) * 5000);
 			});
+			// Ctrl-z will stop without exiting
 			screen.key(['C-z'], _ => clearTimeout(interval));
 		}, config.get('interval', 1) * 1000);
 	}
