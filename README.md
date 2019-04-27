@@ -23,3 +23,6 @@ OR `docker run --rm -it thann/pingg`
 `--max 1000` `-m`  set max number of data-points for a sliding window graph instead of pruning
 
 `--gateway` `g`  also pings the default gateway (router)
+
+#### TCP
+Adding a port to a hostname will use TCP intead of ICMP. i.e. `pingg google.com:443`

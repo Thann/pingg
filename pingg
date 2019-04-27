@@ -4,6 +4,7 @@
 // Ping graphing tool:
 // pingg google.com yahoo.com
 
+const net = require('net');
 const TS = require('./ts').$ts;
 const Config = require('bcfg');
 const blessed = require('blessed');
@@ -11,7 +12,7 @@ const contrib = require('blessed-contrib');
 const cp = require('child_process');
 let netroute;
 try {
-  netroute = require('netroute');
+	netroute = require('netroute');
 } catch(e) {}
 
 // Parse arguments
@@ -74,48 +75,75 @@ screen.render();
 
 // Ping each host and display results
 for (const host of config.argv) {
-	const ping = cp.spawn('ping', [host].concat(
-		config.get ('interval') && ['-i', config.get('interval')]  ||
-		config.bool('flood') && ['-A'] || []));
 	const hostData = {
 		title: host,
 		x:[],
 		y:[],
 		ts:[],
+		pingIndex: 0,
 		style: {
 			line: colors[cIndex++ % colors.length],
 		},
 	};
 	data.push(hostData);
 
-	let pingIndex = 0;
-	ping.stdout.on('data', function(d) {
-		const latency = (/time=([\d\.]+) ms/g).exec(d.toString());
-		if (latency) {
-			const d = new Date();
-			hostData.x.push(d.toLocaleTimeString());
-			hostData.y.push(parseFloat(latency[1]));
-			hostData.ts.push(Math.floor(d / 1000)); // X but for the ts lib
-			if (config.get('max')) {
-					if (hostData.x.length >= config.int('max')) {
-						hostData.x.splice(0, hostData.x.length - config.int('max'))
-						hostData.y.splice(0, hostData.y.length - config.int('max'))
-						hostData.ts.splice(0, hostData.ts.length - config.int('max'))
-					}
-			}
-			else if (config.int('prune') && !(pingIndex++ % config.int('prune')))
-				prune();
-			line.setData(data);
-			screen.render();
+	if (host.indexOf(':') < 0) { // ICMP
+		const ping = cp.spawn('ping', [host].concat(
+			config.get ('interval') && ['-i', config.get('interval')]  ||
+			config.bool('flood') && ['-A'] || []));
+		ping.stdout.on('data', function(d) {
+			const latency = (/time=([\d\.]+) ms/g).exec(d.toString());
+			if (latency) pushData(hostData, latency[1]);
+		});
+		ping.stdout.on('end', function() {
+			hostData.title = '!! ' + host;
+		});
+		// Ctrl-z will stop without exiting
+		screen.key(['C-z'], _ => ping.kill());
+	} else { //TCP
+		let skip;
+		const interval = setInterval(() => {
+			if (skip) return;
+			skip = true;
+			const sock = new net.Socket();
+			const start = process.hrtime();
+			const [hostname, port] = host.split(':');
+			sock.connect(port, hostname, () => {
+				skip = false;
+				const end = process.hrtime(start);
+				pushData(hostData, (end[0] * 1e9 + end[1]) / 1e6);
+				sock.destroy();
+			});
+			sock.on('error', (e) => {
+				sock.destroy();
+				clearTimeout(interval);
+				hostData.title = '!! ' + host;
+			});
+			sock.setTimeout(config.get('interval', 1) * 5000, (e) => {
+				skip = false;
+				sock.destroy();
+				// pushData(hostData, config.get('interval', 1) * 5000);
+			});
+			screen.key(['C-z'], _ => clearTimeout(interval));
+		}, config.get('interval', 1) * 1000);
+	}
+}
+
+function pushData(hostData, frame) {
+	const d = new Date();
+	hostData.x.push(d.toLocaleTimeString());
+	hostData.y.push(parseFloat(frame));
+	hostData.ts.push(Math.floor(d / 1000)); // X but for the ts lib
+	if (config.get('max')) {
+		if (hostData.x.length >= config.int('max')) {
+			hostData.x.splice(0, hostData.x.length - config.int('max'));
+			hostData.y.splice(0, hostData.y.length - config.int('max'));
+			hostData.ts.splice(0, hostData.ts.length - config.int('max'));
 		}
-	});
-
-	ping.stdout.on('end', function() {
-		hostData.title = '!! ' + host;
-	});
-
-	// Ctrl-z will stop without exiting
-	screen.key(['C-z'], _ => ping.kill());
+	} else if (config.int('prune') && !(hostData.pingIndex++ % config.int('prune')))
+		prune();
+	line.setData(data);
+	screen.render();
 }
 
 // Prune - Remove static from the data to make it smaller
