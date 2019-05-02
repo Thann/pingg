@@ -68,6 +68,7 @@ const line = contrib.line({
 	label: 'Network latency',
 });
 screen.append(line);
+screen.on('resize', _ => line.emit('attach'));
 // Keybinds to exit
 screen.key(['escape', 'q', 'C-c'], _ => process.exit(0));
 screen.key(['C-p'], prune);
