@@ -112,6 +112,7 @@ for (const host of config.argv) {
 			sock.connect(port, hostname, () => {
 				skip = false;
 				sock.destroy();
+				hostData.title = host;
 				const end = process.hrtime(start);
 				pushData(hostData, (end[0] * 1e9 + end[1]) / 1e6);
 			});
@@ -123,6 +124,7 @@ for (const host of config.argv) {
 			sock.setTimeout(config.get('interval', 1) * 5000, (e) => {
 				skip = false;
 				sock.destroy();
+				hostData.title = '!! ' + host;
 				pushData(hostData, config.get('interval', 1) * 5000);
 			});
 		};
