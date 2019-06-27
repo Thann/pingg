@@ -121,11 +121,11 @@ for (const host of config.argv) {
 				clearTimeout(interval);
 				hostData.title = '!! ' + host;
 			});
-			sock.setTimeout(config.get('interval', 1) * 5000, (e) => {
+			sock.setTimeout(config.get('interval', 1) * 1200, (e) => {
 				skip = false;
 				sock.destroy();
 				hostData.title = '!! ' + host;
-				pushData(hostData, config.get('interval', 1) * 5000);
+				pushData(hostData, config.get('interval', 1) * 1000);
 			});
 		};
 		interval = setInterval(tcping, config.get('interval', 1) * 1000);
