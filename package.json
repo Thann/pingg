@@ -27,7 +27,7 @@
     "netroute": "github:indutny/node-netroute#cc271e379afc4faf48b4d4295d68dd38e5d6b224"
   },
   "devDependencies": {
-    "bmocha": "^2.1.0",
+    "bmocha": "^2.1.2",
     "eslint": "^5.16.0"
   },
   "keywords": [

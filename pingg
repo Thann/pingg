@@ -48,7 +48,7 @@ if (config.get('trace')) {
 	config.argv = cp.execSync('traceroute '+ config.argv[0])
 		.toString().split('\n').reduce((arr, s) => {
 			const e = / \(([\w.]+)\) /.exec(s);
-			e && e[1] && arr.push(e[1]);
+			if (e && e[1]) arr.push(e[1]);
 			return arr;
 		}, []);
 }
