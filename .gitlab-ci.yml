@@ -39,16 +39,17 @@ release:
     - docker
   script:
     - docker pull "$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG"
-    - docker run --name=release --entrypoint sh "$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG" -c "npm install pkg; /app/node_modules/.bin/pkg . -t node10-macos,node10-win"
+    - docker run --name=release --entrypoint sh "$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG" -c "npm install pkg; /app/node_modules/.bin/pkg . -t node10-macos,node10-win,node10-linux"
     - mkdir public
     # Build release binaries
     - docker cp release:/app/pingg-macos "public/pingg-${CI_COMMIT_TAG}-macos"
     - docker cp release:/app/pingg-win.exe "public/pingg-${CI_COMMIT_TAG}-win.exe"
+    - docker cp release:/app/pingg-linux.exe "public/pingg-${CI_COMMIT_TAG}-linux.exe"
     - apk add --no-cache curl
     # Publish release
     - |
       curl --fail --output "/dev/null" --silent --show-error --write-out "HTTP response: ${http_code}\n\n" \
-        --data "{\"tag_name\": \"${CI_COMMIT_TAG}\", \"name\": \"${CI_PROJECT_NAME} - ${CI_COMMIT_TAG}\", \"description\": \"${CI_COMMIT_TAG_MESSAGE:-Automated release}\", \"assets\": { \"links\": [{ \"name\": \"MacOS download\", \"url\": \"${CI_JOB_URL}/artifacts/raw/public/pingg-${CI_COMMIT_TAG}-macos?inline=false\" },{ \"name\": \"Windows download\", \"url\": \"${CI_JOB_URL}/artifacts/raw/public/pingg-${CI_COMMIT_TAG}-win.exe?inline=false\" }] } }" \
+        --data "{\"tag_name\": \"${CI_COMMIT_TAG}\", \"name\": \"${CI_PROJECT_NAME} - ${CI_COMMIT_TAG}\", \"description\": \"${CI_COMMIT_TAG_MESSAGE:-Automated release}\", \"assets\": { \"links\": [{ \"name\": \"MacOS download\", \"url\": \"${CI_JOB_URL}/artifacts/raw/public/pingg-${CI_COMMIT_TAG}-macos?inline=false\" },{ \"name\": \"Windows download\", \"url\": \"${CI_JOB_URL}/artifacts/raw/public/pingg-${CI_COMMIT_TAG}-win.exe?inline=false\" },{ \"name\": \"Linux download\", \"url\": \"${CI_JOB_URL}/artifacts/raw/public/pingg-${CI_COMMIT_TAG}-linux?inline=false\" }] } }" \
         --header "Content-Type: application/json" \
         --header "Private-Token: ${RELEASE_KEY}" \
         --request POST \
