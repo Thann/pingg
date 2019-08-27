@@ -88,7 +88,7 @@ for (const host of config.argv) {
 	};
 	data.push(hostData);
 
-	if (host.indexOf(':') < 0) { // ICMP
+	if ((host.match(/:/g) || []).length !== 1) { // ICMP
 		const ping = cp.spawn('ping', [host].concat(
 			config.get ('interval') && ['-i', config.get('interval')]  ||
 			config.bool('flood') && ['-A'] || []));
@@ -101,7 +101,7 @@ for (const host of config.argv) {
 		});
 		// Ctrl-z will stop without exiting
 		screen.key(['C-z'], _ => ping.kill());
-	} else { //TCP
+	} else { // TCP
 		let skip, interval;
 		const tcping = function() {
 			if (skip) return;
