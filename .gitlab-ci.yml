@@ -43,8 +43,8 @@ release:
     - mkdir public
     # Build release binaries
     - docker cp release:/app/pingg-macos "public/pingg-${CI_COMMIT_TAG}-macos"
+    - docker cp release:/app/pingg-linux "public/pingg-${CI_COMMIT_TAG}-linux"
     - docker cp release:/app/pingg-win.exe "public/pingg-${CI_COMMIT_TAG}-win.exe"
-    - docker cp release:/app/pingg-linux.exe "public/pingg-${CI_COMMIT_TAG}-linux.exe"
     - apk add --no-cache curl
     # Publish release
     - |
