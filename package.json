@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "bmocha": "^2.1.2",
-    "eslint": "^5.16.0"
+    "eslint": "^6.2.2"
   },
   "pkg": {
     "assets": "node_modules/blessed/**/*"
