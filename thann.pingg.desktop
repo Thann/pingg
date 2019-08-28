@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Pingg
+Comment=Ping Graph
+Exec=pingg
+Icon=icon.pingg.png
+Terminal=true
+Type=Application
+Categories=Utilities;
