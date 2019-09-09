@@ -13,7 +13,10 @@ const cp = require('child_process');
 let netroute;
 try {
 	netroute = require('netroute');
-} catch(e) {}
+} catch(e) {
+	if (e.code !== 'MODULE_NOT_FOUND')
+		console.error(e);
+}
 
 // Parse arguments
 const config = new Config('pingg', {
@@ -36,8 +39,10 @@ config.load({ argv: true });
 
 let gateway;
 try {
-	gateway = netroute.getGateway();
-} catch(e) {}
+	 gateway = netroute && netroute.getGateway();
+} catch(e) {
+	console.error(e);
+}
 if (!config.argv.length)
 	config.argv = ['8.8.8.8', '1.1.1.1', gateway].filter(Boolean);
 else if (config.bool('gateway') && gateway)
