@@ -8,6 +8,7 @@ Ping latency graphing CLI
 OR `docker run --rm -it thann/pingg`
 
 ![screenshot](https://gitlab.com/Thann/pingg/raw/master/example2.png)
+By default will ping your router, google-dns (8.8.8.8), & cloudflare-dns (1.1.1.1)
 
 ## options
 `--trace` `-t`  executes traceroute and graphs pings to every target
@@ -21,6 +22,8 @@ OR `docker run --rm -it thann/pingg`
 `--prune 1000` `-p`  set number of pings between each graph simplification. disable with `0`, run with `Ctrl-p`
 
 `--max 1000` `-m`  set max number of data-points for a sliding window graph instead of pruning
+
+`--maxy 1000` `-Y`  set max graph value so spikes dont mess the scaling up
 
 `--gateway` `g`  also pings the default gateway (router)
 
