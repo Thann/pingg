@@ -21,6 +21,8 @@ try {
 // Parse arguments
 const config = new Config('pingg', {
 	alias: {
+		'Y': 'maxy',
+		'y': 'miny',
 		'm': 'max',
 		'c': 'colors',
 		'f': 'flood',
@@ -61,6 +63,8 @@ if (config.get('trace')) {
 const colors = config.array('colors');
 const data = [];
 let cIndex = 0;
+const minY = config.float('miny') || 0;
+const maxY = config.float('maxy') || null;
 
 // Setup display
 const screen = blessed.screen();
@@ -71,6 +75,8 @@ const line = contrib.line({
 	yPadding: 1,
 	showLegend: true,
 	label: 'Network latency',
+	minY: minY,
+	maxY: maxY,
 });
 screen.append(line);
 screen.on('resize', _ => line.emit('attach'));
