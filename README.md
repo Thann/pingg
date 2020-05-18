@@ -8,6 +8,7 @@ Ping latency graphing CLI
 OR `docker run --rm -it thann/pingg`
 
 ![screenshot](https://gitlab.com/Thann/pingg/raw/master/example2.png)
+
 By default will ping your router, google-dns (8.8.8.8), & cloudflare-dns (1.1.1.1)
 
 ## options
