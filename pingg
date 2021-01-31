@@ -10,13 +10,6 @@ const Config = require('bcfg');
 const blessed = require('blessed');
 const contrib = require('blessed-contrib');
 const cp = require('child_process');
-let netroute;
-try {
-	netroute = require('netroute');
-} catch(e) {
-	if (e.code !== 'MODULE_NOT_FOUND')
-		console.error(e);
-}
 
 // Parse arguments
 const config = new Config('pingg', {
@@ -39,12 +32,13 @@ config.inject({
 });
 config.load({ argv: true });
 
+// get default gateway
 let gateway;
 try {
-	 gateway = netroute && netroute.getGateway();
-} catch(e) {
-	console.error(e);
-}
+	gateway = cp.execSync('ip r', {stdio: 'pipe'}).toString('UTF-8').
+			match(/default via (((\d){1,3}\.){3}(\d){1,3})/)[1];
+} catch(e) {}
+
 if (!config.argv.length)
 	config.argv = ['8.8.8.8', '1.1.1.1', gateway].filter(Boolean);
 else if (config.bool('gateway') && gateway)

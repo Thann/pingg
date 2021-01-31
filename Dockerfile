@@ -4,6 +4,8 @@ ENV LANG en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
 ENV PATH "$PATH:/app"
 ENTRYPOINT ["pingg"]
+# Default-Gateway is hard to determine inside docker, so omit it by default
+CMD ["8.8.8.8", "1.1.1.1"]
 
 # Create app directory
 RUN mkdir /app
