@@ -32,11 +32,11 @@ config.inject({
 });
 config.load({ argv: true });
 
-// get default gateway
+// Get default gateway
 let gateway;
 try {
-	gateway = cp.execSync('ip r', {stdio: 'pipe'}).toString('UTF-8').
-			match(/default via (((\d){1,3}\.){3}(\d){1,3})/)[1];
+	gateway = cp.execSync('ip route', {stdio: 'pipe'}).toString('UTF-8').
+			match(/default via ((\d{1,3}\.){3}\d{1,3})/)[1];
 } catch(e) {}
 
 if (!config.argv.length)
