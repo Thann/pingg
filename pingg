@@ -30,6 +30,7 @@ const config = new Config('pingg', {
 });
 config.inject({
 	'prune': 1000,
+	'interval': 1,
 	'colors': ['green', 'blue', 'red', 'white', 'yellow', 'magenta'],
 });
 config.load({ argv: true });
@@ -97,7 +98,7 @@ for (const host of config.argv) {
 
 	if ((host.match(/:/g) || []).length !== 1) { // ICMP
 		const ping = cp.spawn('ping', [host].concat(
-			config.get ('interval') && ['-i', config.get('interval')]  ||
+			config.get ('interval') && ['-i', config.int('interval')]  ||
 			//config.int ('packetsize') && ['-s', config.int('packetsize')] ||
 			config.bool('flood') && ['-A'] || []));
 		ping.stdout.on('data', function(d) {
@@ -134,14 +135,14 @@ for (const host of config.argv) {
 				clearTimeout(interval);
 				hostData.title = '!! ' + host;
 			});
-			sock.setTimeout(config.get('interval', 1) * 1200, (e) => {
+			sock.setTimeout(config.int('maxy', 1200), (e) => {
 				skip = false;
 				sock.destroy();
 				hostData.title = '!! ' + host;
-				pushData(hostData, config.get('interval', 1) * 1000);
+				pushData(hostData, config.int('interval') * 1000);
 			});
 		};
-		interval = setInterval(tcping, config.get('interval', 1) * 1000);
+		interval = setInterval(tcping, config.int('interval') * 1000);
 		// Ctrl-z will stop without exiting
 		screen.key(['C-z'], _ => clearTimeout(interval));
 		tcping();
