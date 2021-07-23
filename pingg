@@ -7,6 +7,7 @@
 const net = require('net');
 const TS = require('./ts').$ts;
 const Config = require('bcfg');
+const crypto = require('crypto');
 const blessed = require('blessed');
 const contrib = require('blessed-contrib');
 const cp = require('child_process');
@@ -21,6 +22,7 @@ const config = new Config('pingg', {
 		'f': 'flood',
 		'A': 'flood',
 		't': 'trace',
+		's': 'packetsize',
 		'p': 'prune',
 		'g': 'gateway',
 		'i': 'interval',
@@ -96,6 +98,7 @@ for (const host of config.argv) {
 	if ((host.match(/:/g) || []).length !== 1) { // ICMP
 		const ping = cp.spawn('ping', [host].concat(
 			config.get ('interval') && ['-i', config.get('interval')]  ||
+			//config.int ('packetsize') && ['-s', config.int('packetsize')] ||
 			config.bool('flood') && ['-A'] || []));
 		ping.stdout.on('data', function(d) {
 			const latency = (/time=([\d\.]+) ms/g).exec(d.toString());
@@ -116,10 +119,15 @@ for (const host of config.argv) {
 			const [hostname, port] = host.split(':');
 			sock.connect(port, hostname, () => {
 				skip = false;
-				sock.destroy();
 				hostData.title = host;
-				const end = process.hrtime(start);
-				pushData(hostData, (end[0] * 1e9 + end[1]) / 1e6);
+				const done = () => {
+					sock.destroy();
+					const end = process.hrtime(start);
+					pushData(hostData, (end[0] * 1e9 + end[1]) / 1e6);
+				}
+				if (config.get('packetsize'))
+					sock.write(crypto.randomBytes(config.int('packetsize')), 'utf8', done)
+				else done()
 			});
 			sock.on('error', (e) => {
 				sock.destroy();
