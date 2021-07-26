@@ -20,7 +20,7 @@ COPY package.json \
 
 # Install build dependencies
 FROM base AS build
-RUN apk add --no-cache linux-headers git python make g++
+RUN apk add --no-cache linux-headers git python3 make g++
 
 # HACK: to get netutils working
 RUN ln -s /usr/include/linux/sysctl.h /usr/include/sys/
